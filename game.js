@@ -1,4 +1,8 @@
-const canvas = document.getElementById("game");
+let coins = 0;
+let xp = 0;
+let level = 1;
+
+const healthPacks = [];const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
 canvas.width = innerWidth;
