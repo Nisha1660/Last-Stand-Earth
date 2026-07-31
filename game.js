@@ -1,107 +1,171 @@
-const board=document.getElementById("board");
-const rollBtn=document.getElementById("roll");
-const dice=document.getElementById("dice");
-const status=document.getElementById("status");
-const mode=document.getElementById("mode");
+const board = document.getElementById("board");
+const rollBtn = document.getElementById("roll");
+const dice = document.getElementById("dice");
+const status = document.getElementById("status");
+const mode = document.getElementById("mode");
+const restart = document.getElementById("restart");
 
-let players=[
-    {
-        name:"Player 1",
-        position:0,
-        color:"red"
-    },
-    {
-        name:"Player 2",
-        position:0,
-        color:"blue"
-    }
+
+// Players
+
+let players = [
+
+{
+name:"Player 1",
+position:0
+},
+
+{
+name:"Player 2",
+position:0
+}
+
 ];
 
-let turn=0;
-let gameOver=false;
+
+let turn = 0;
+let gameOver = false;
 
 
-// Snakes and ladders
 
-const snakes={
+// Snakes
 
-97:78,
-95:75,
-88:48,
-62:19,
-56:36,
-49:11,
-47:26,
-16:6
+const snakes = {
+
+99:54,
+95:72,
+89:64,
+76:45,
+66:34,
+48:26,
+39:3,
+25:5
 
 };
 
 
-const ladders={
+// Ladders
+
+const ladders = {
 
 2:23,
-7:29,
-18:37,
+8:30,
 21:42,
-28:84,
+28:56,
+36:57,
 51:67,
-71:91,
+70:92,
 80:99
 
 };
 
 
-// Create board
+
+// Create Board
 
 for(let r=9;r>=0;r--){
 
-let nums=[];
+let row=[];
+
 
 for(let c=0;c<10;c++){
 
-nums.push(r*10+c+1);
+row.push(r*10+c+1);
 
 }
 
-if((9-r)%2==1)
-nums.reverse();
+
+if((9-r)%2===1){
+
+row.reverse();
+
+}
 
 
-nums.forEach(num=>{
+
+row.forEach(num=>{
+
 
 let cell=document.createElement("div");
 
-cell.className="cell "+(num%2==0?"even":"odd");
+
+cell.className="cell "+(num%2===0?"even":"odd");
+
 
 cell.id="cell"+num;
 
+
 cell.innerHTML=num;
+
 
 board.appendChild(cell);
 
+
 });
+
 
 }
 
 
-// Move player graphics
+
+// Add snake and ladder symbols
+
+Object.keys(snakes).forEach(pos=>{
+
+
+let cell=document.getElementById("cell"+pos);
+
+
+if(cell){
+
+cell.innerHTML+=" 🐍";
+
+}
+
+});
+
+
+
+Object.keys(ladders).forEach(pos=>{
+
+
+let cell=document.getElementById("cell"+pos);
+
+
+if(cell){
+
+cell.innerHTML+=" 🪜";
+
+}
+
+});
+
+
+
+
+// Draw Players
 
 function drawPlayers(){
+
 
 document.querySelectorAll(".player1,.player2")
 .forEach(e=>e.remove());
 
 
-players.forEach((p,index)=>{
 
-if(p.position>0){
+players.forEach((player,index)=>{
+
+
+if(player.position>0){
+
 
 let cell=document.getElementById(
-"cell"+p.position
+"cell"+player.position
 );
 
 
 let token=document.createElement("div");
+
 
 token.className=index===0?
 "player1":"player2";
@@ -109,41 +173,89 @@ token.className=index===0?
 
 cell.appendChild(token);
 
+
 }
+
 
 });
 
+
 }
 
 
-// Roll dice
+
+
+// Dice faces
+
+function getDice(num){
+
+
+let faces=[
+
+"",
+"⚀",
+"⚁",
+"⚂",
+"⚃",
+"⚄",
+"⚅"
+
+];
+
+
+return faces[num];
+
+
+}
+
+
+
+// Roll button
 
 rollBtn.onclick=function(){
 
-if(gameOver) return;
+
+if(gameOver)
+return;
+
 
 
 if(turn===1 && mode.value==="ai"){
 
-aiMove();
 
-return;
+aiTurn();
+
 
 }
 
+else{
 
-playTurn();
+
+playerTurn();
+
+
+}
+
 
 };
 
 
 
-function playTurn(){
 
-let roll=Math.floor(Math.random()*6)+1;
+
+function playerTurn(){
+
+
+let roll=
+Math.floor(Math.random()*6)+1;
+
+
+
+animateDice();
 
 
 dice.innerHTML=getDice(roll);
+
 
 
 movePlayer(
@@ -152,55 +264,95 @@ roll
 );
 
 
-if(gameOver)return;
+
+if(gameOver)
+return;
 
 
-turn=turn===0?1:0;
+
+turn =
+turn===0 ? 1 : 0;
+
 
 
 updateStatus();
 
 
+
+
 if(turn===1 && mode.value==="ai"){
 
-setTimeout(aiMove,800);
+
+setTimeout(aiTurn,1000);
+
 
 }
 
+
+
 }
 
 
 
-function aiMove(){
 
-let roll=Math.floor(Math.random()*6)+1;
+// AI
+
+function aiTurn(){
+
+
+let roll=
+Math.floor(Math.random()*6)+1;
+
+
+
+animateDice();
 
 
 dice.innerHTML=getDice(roll);
 
 
-movePlayer(players[1],roll);
+
+movePlayer(
+players[1],
+roll
+);
+
+
+
+if(gameOver)
+return;
+
 
 
 turn=0;
 
+
 updateStatus();
+
 
 }
 
 
 
 
+
+// Move Player
+
 function movePlayer(player,steps){
 
-let newPos=player.position+steps;
+
+let newPosition =
+player.position + steps;
 
 
-if(newPos>100)
+
+if(newPosition>100)
 return;
 
 
-player.position=newPos;
+
+player.position=newPosition;
+
 
 
 
@@ -208,25 +360,35 @@ player.position=newPos;
 
 if(ladders[player.position]){
 
+
 player.position=ladders[player.position];
 
+
 }
+
+
 
 
 // Snake
 
 if(snakes[player.position]){
 
+
 player.position=snakes[player.position];
 
+
 }
+
+
 
 
 drawPlayers();
 
 
 
+
 if(player.position===100){
+
 
 status.innerHTML=
 "🏆 "+player.name+" Wins!";
@@ -234,40 +396,85 @@ status.innerHTML=
 
 gameOver=true;
 
+
 return;
 
-}
 
 }
 
 
 
+}
+
+
+
+
+// Status
 
 function updateStatus(){
+
 
 status.innerHTML=
 players[turn].name+" Turn";
 
+
+}
+
+
+
+
+// Dice animation
+
+function animateDice(){
+
+
+dice.classList.add("rollAnimation");
+
+
+setTimeout(()=>{
+
+
+dice.classList.remove("rollAnimation");
+
+
+},300);
+
+
 }
 
 
 
 
-function getDice(num){
 
-const faces=[
-"",
-"⚀",
-"⚁",
-"⚂",
-"⚃",
-"⚄",
-"⚅"
-];
+// Restart
 
-return faces[num];
+restart.onclick=function(){
 
-}
+
+players[0].position=0;
+
+
+players[1].position=0;
+
+
+turn=0;
+
+
+gameOver=false;
+
+
+dice.innerHTML="🎲";
+
+
+status.innerHTML="Player 1 Turn";
+
+
+drawPlayers();
+
+
+};
+
+
 
 
 
